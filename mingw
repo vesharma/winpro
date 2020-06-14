@@ -188,3 +188,26 @@ cat </dev/null | ./winexe-static -U 'domain\admin%$PWD' //iihoserver01 --interac
 cat </dev/null | ./winexe-static --U 'domain\admin%$PWD' //iihoserver01 --interactive=0 "$STOP_COMMAND"
 cat </dev/null | ./winexe-static -U 'domain\admin%$PWD' //iihoserver01 --interactive=0 "$START_COMMAND"
  
+ 
+ https://www.secpod.com/blog/winexe/
+ How to install:
+You can download the source package from here [Current version is winexe-1.00.tar.gz]
+
+tar -xvf winexe-1.00.tar.gz
+cd winexe-1.00/source4/
+./autogen.sh
+./configure
+make basics bin/winexe
+make “CPP=gcc -E -ffreestanding” basics bin/winexe (For X64 bit)
+this will create a [ winexe ] binary file in the bin folder. You can use that binary to execute the windows commands from Linux.
+
+or else there are some compiled version of binary itself available for download. You can download and use it from here.
+
+How to use it:
+
+./winexe -U [Domain/]User%Password //host command
+Examples:
+
+./winexe -U HOME/Administrator%Pass123 //192.168.0.1 “netstat -a”
+./winexe -U HOME/Administrator%Pass123 //192.168.0.1 “ipconfig -all”
+/winexe -U HOME/Administrator%Pass123 //192.168.0.1 “ping localhost
