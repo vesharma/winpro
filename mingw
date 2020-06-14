@@ -1,6 +1,47 @@
 https://github.com/mirror/mingw-w64
 https://github.com/beardedeagle/winexe-rpm
+https://www.softwarecollections.org/en/scls/rhscl/rh-perl524/
+https://gitlab.com/kalilinux/packages/winexe
+https://gitlab.com/kalilinux/packages/winexe/-/pipelines
+https://github.com/beardedeagle/winexe-rpm
+https://sourceforge.net/projects/winexe/files/
+https://www.reddit.com/r/linuxadmin/comments/2xsmge/winexe_1001_for_centos_6_x86_64/cp3a4e8/
+https://easyoradba.com/2018/02/04/execute-windows-commands-from-linux-using-winexe-connect-from-linux-to-windows-without-ssh/
 
+_-----------------------
+http://rand0m.org/2015/08/05/winexe-1-1-centos-6-and-windows-2012-r2/
+
+# make sure EPEL is enabled in /etc/yum.repos.d/epel.repo
+
+# fixup a bunch of samba dependencies
+yum install gcc perl mingw-binutils-generic mingw-filesystem-base mingw32-binutils mingw32-cpp mingw32-crt mingw32-filesystem mingw32-gcc mingw32-headers mingw64-binutils mingw64-cpp mingw64-crt mingw64-filesystem mingw64-gcc mingw64-headers libcom_err-devel popt-devel zlib-devel zlib-static glibc-devel glibc-static python-devel
+yum install git gnutls-devel libacl1-dev libacl-devel libldap2-dev openldap-devel
+
+#per the docs, remove libbsd-devel if installed
+yum remove libbsd-devel
+
+#clone the git repos. samba is huge, like 280MB
+cd /usr/src
+git clone git://git.code.sf.net/p/winexe/winexe-waf winexe-winexe-waf
+git clone git://git.samba.org/samba.git samba
+
+#per winexe bug 64, samba needs to be reverted to a6bda1f2bc85779feb9680bc74821da5ccd401c5
+#
+cd /usr/src/samba
+git reset --hard a6bda1f2bc85779feb9680bc74821da5ccd401c5
+
+#fixup the build deps. I chose to build it as big and static as I could, so the only linked dependency is gnutls
+# cd /usr/src/winexe-winexe-waf/source
+# modify 'wscript_build', and at the very end ...
+stlib='smb_static bsd z resolv rt'
+lib='dl gnutls'
+
+#build it! this does a huge configure, then also compiles samba, which takes a while.
+./waf --samba-dir=../../samba configure build
+
+#executable should be  /usr/src/winexe-winexe-waf/source/build/winexe-static
+
+------------------------------------------------------------
 
 winexe-rpm
 Bash script and spec file to prep and build a winexe 1.1 rpm. Built and tested against:
@@ -81,3 +122,69 @@ And install:
 rpm -iUvh RPMS/$HOSTTYPE/winexe-1.1-b787d2.*.$HOSTTYPE.rpm
 
 Acknowledgements
+
+-----------
+https://www.secpod.com/blog/winexe/
+Winexe is a GNU/Linux based application that allows users to execute commands remotely on WindowsNT/2000/XP/2003/Vista/7/8 systems. It installs a service on the remote system, executes the command and uninstalls the service. Winexe allows execution of most of the windows shell commands.
+How to install:
+You can download the source package from here [Current version is winexe-1.00.tar.gz]
+
+tar -xvf winexe-1.00.tar.gz
+cd winexe-1.00/source4/
+./autogen.sh
+./configure
+make basics bin/winexe
+make “CPP=gcc -E -ffreestanding” basics bin/winexe (For X64 bit)
+this will create a [ winexe ] binary file in the bin folder. You can use that binary to execute the windows commands from Linux.
+or else there are some compiled version of binary itself available for download. You can download and use it from here.
+The above version of winexe works only till version Windows Server 2012. For Windows Server 2012R2 requires below method to make winexe work with latest version of windows. Below method will get the code for samba and winexe from the github repository and we will have to build it for it to work.
+Alternate Method (Best Method to Work with Latest Version of Windows 10 and Windows Server 2012R2)
+
+http://rand0m.org/2015/08/05/winexe-1-1-centos-6-and-windows-2012-r2/
+
+Install Samba on Linux
+yum install samba-common
+2.      fixup a bunch of samba dependencies
+
+yum install gcc perl mingw-binutils-generic mingw-filesystem-base mingw32-binutils mingw32-cpp mingw32-crt mingw32-filesystem mingw32-gcc mingw32-headers mingw64-binutils mingw64-cpp mingw64-crt mingw64-filesystem mingw64-gcc mingw64-headers libcom_err-devel popt-devel zlib-devel zlib-static glibc-devel glibc-static python-devel
+yum install git gnutls-devel libacl1-dev libacl-devel libldap2-dev openldap-devel
+As per the docs, remove libbsd-devel if installed
+yum remove libbsd-devel
+Clone the git repos. samba is huge, like 280MB
+cd /usr/src
+git clone git://git.code.sf.net/p/winexe/winexe-waf winexe-winexe-wafgit clone git://git.samba.org/samba.git samba
+per winexe bug 64, samba needs to be reverted to a6bda1f2bc85779feb9680bc74821da5ccd401c5
+cd /usr/src/samba
+git reset --hard a6bda1f2bc85779feb9680bc74821da5ccd401c5
+Fixup the build deps
+cd /usr/src/winexe-winexe-waf/source
+vi wscript_build
+# modify 'wscript_build', and at the very end ...stlib='smb_static bsd z resolv rt'lib='dl gnutls'
+7.     Build it! his does a huge configure, then also compiles samba, which takes a while. 
+
+./waf --samba-dir=../../samba configure build
+8.     Executable should be  /usr/src/winexe-winexe-waf/source/build/winexe-static
+
+cd /usr/src/winexe-winexe-waf/source/build/
+cat </dev/null | ./winexe-static -U 'domain\admin%$PWD' //iihoserver01 "ipconfig -all"
+cat </dev/null | ./winexe-static -U 'domain\admin%$PWD' //iihoserver01 "ipconfig -all" -d99
+Sample on How to use it to Check Service on Linux :
+
+export CHECK_COMMAND='sc query "Notification Service"'
+export STOP_COMMAND='sc stop "Notification Service"'
+export START_COMMAND='sc start "Notification Service"'
+## Check Service Status ##
+cat </dev/null | ./winexe-static -U 'domain\admin%$PWD' //iihoserver01 --interactive=0 "$CHECK_COMMAND"
+## Check with Debug ##
+cat </dev/null | ./winexe-static -U 'domain\admin%$PWD' //iihoserver01 --interactive=0 "$CHECK_COMMAND" -d99
+## Run powershell script or command on windows then like below ##
+winexe -U administrator%$PWD //$IP "powershell -Command & {(c:\User\administrator\powershell.ps1)}"
+ 
+## Stop and Start Service ##
+export CHECK_COMMAND='sc query "Browser"'
+export STOP_COMMAND='sc stop "Browser "'
+export START_COMMAND='sc start "Browser "'
+cat </dev/null | ./winexe-static -U 'domain\admin%$PWD' //iihoserver01 --interactive=0 "$CHECK_COMMAND"
+cat </dev/null | ./winexe-static --U 'domain\admin%$PWD' //iihoserver01 --interactive=0 "$STOP_COMMAND"
+cat </dev/null | ./winexe-static -U 'domain\admin%$PWD' //iihoserver01 --interactive=0 "$START_COMMAND"
+ 
