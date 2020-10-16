@@ -1,0 +1,115 @@
+<!DOCTYPE html>  
+<html>  
+<head>  
+<meta name="viewport" content="width=device-width, initial-scale=1">  
+<style>  
+body{  
+  font-family: Calibri, Helvetica, sans-serif;  
+  background-color: white;  
+}  
+.container {  
+    padding: 50px;
+    width: 30%;  
+  background-color: lightblue;  
+  border: 3px solid blue;  
+  padding-left: 120px;  
+  padding-right: 75px;
+  position: relative;
+  
+}  
+  
+input[type=text], input[type=password], textarea {  
+  width: 100%;  
+  padding: 15px;  
+  margin: 5px 0 22px 0;  
+  display: inline-block;  
+  border: none;  
+  background: #f1f1f1;  
+}  
+input[type=text]:focus, input[type=password]:focus {  
+  background-color: orange;  
+  outline: none;  
+}  
+ div {  
+            padding: 10px 0;  
+         }  
+hr {  
+  border: 1px solid #f1f1f1;  
+  margin-bottom: 25px;  
+}  
+.registerbtn {  
+  background-color: #4CAF50;  
+  color: white;  
+  padding: 16px 20px;  
+  margin: 8px 0;  
+  border: none;  
+  cursor: pointer;  
+  width: 100%;  
+  opacity: 0.9;  
+}  
+.registerbtn:hover {  
+  opacity: 1;  
+}  
+</style>  
+</head>  
+<body>  
+<form action="result.html" method="GET">  
+  <div class="container">  
+  <center>  <h1> MiddleWare installation Form</h1> </center>  
+  <hr>  
+  <label> Project Name </label>   
+<input type="text" name="projectname" placeholder= "Project Name" size="15" required />   
+
+<div>  
+    <label>   
+    region List :  
+    </label>   
+    <select  required>  
+    <option value="Alpha">Alpha</option>  
+    <option value="BTAT">BTAT</option>  
+    <option value="BTAT2">BTAT2</option>  
+    <option value="CERT">CERT</option>  
+    <option value="PROD">PROD</option>  
+    <option value="DR">DR</option>  
+    </select>  
+    </div>  
+
+<div>  
+    <label>   
+    Installation type :  
+    </label><br>  
+    <input type="radio" value="jboss" name="Middleware" checked > jboss
+    <input type="radio" value="Weblogic" name="Middleware"> Weblogic   
+    <input type="radio" value="Tomcat" name="Middleware"> Tomcat
+
+
+
+    <div>  
+        <label>   
+        Domain Controller:  
+        </label>   
+        <select required>  
+            <option value="elab1ajba01">elab1ajba01</option>  
+        </select>  
+        </div>  
+
+<div>  
+<label>   
+Server List :  
+</label>   
+<select name="server" id="serverlist" multiple size=6>  
+<option value="elab1aws01">elab1aws01</option>  
+<option value="elab1aws02">elab1aws02</option>  
+<option value="elab1aws03">elab1aws03</option>  
+<option value="elab1aws04">elab1aws04</option>  
+<option value="elab1aws05">elab1aws05</option>  
+</select>  
+</div>  
+  
+</div>  
+ <label for="email"><b>Email</b></label>  
+ <input type="text" placeholder="Enter Email" name="email" required>  
+ <button type="submit" class="submitbtn">Submit</button>    
+</form>  
+</body>  
+</html>  
